@@ -1,6 +1,8 @@
 # Authentication
 This article goes through the authentication settings for the FHIR server and how to make use of it in development and test scenarios.
 
+# Test
+
 ## Authentication Settings
 The current authentication settings exposed in configuration are the following:
 ```json
