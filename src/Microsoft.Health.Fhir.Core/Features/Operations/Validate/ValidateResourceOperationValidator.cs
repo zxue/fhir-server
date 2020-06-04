@@ -5,17 +5,17 @@
 
 using FluentValidation;
 using Microsoft.Health.Fhir.Core.Features.Validation;
-using Microsoft.Health.Fhir.Core.Features.Validation.Narratives;
+using Microsoft.Health.Fhir.Core.Messages.Operation;
 
-namespace Microsoft.Health.Fhir.Core.Messages.Operation
+namespace Microsoft.Health.Fhir.Core.Features.Operations.Validate
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Follows validator naming convention.")]
     public class ValidateResourceOperationValidator : AbstractValidator<ValidateOperationRequest>
     {
-        public ValidateResourceOperationValidator(INarrativeHtmlSanitizer htmlSanitizer, IModelAttributeValidator modelAttributeValidator)
+        public ValidateResourceOperationValidator(IModelSpecificationValidator modelValidator)
         {
             RuleFor(x => x.Resource)
-                .SetValidator(new ResourceValidator(htmlSanitizer, modelAttributeValidator));
+                .SetValidator(new SpecificationValidator(modelValidator));
         }
     }
 }

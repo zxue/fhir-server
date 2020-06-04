@@ -20,5 +20,16 @@
     <ProjectReference Include="..\Microsoft.Health.Fhir.SqlServer\Microsoft.Health.Fhir.SqlServer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="definitions.json.zip" />
+    <Content Include="definitions.json.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <Import Project="..\Microsoft.Health.Fhir.Shared.Web\Microsoft.Health.Fhir.Shared.Web.projitems" Label="Shared" />
+
+  <Target Name="DownloadDefinitions" BeforeTargets="GetCopyToOutputDirectoryItems">
+    <DownloadFile SourceUrl="http://hl7.org/fhir/R4/definitions.json.zip" DestinationFolder="$(MSBuildProjectDirectory)" />
+  </Target>
 </Project>
