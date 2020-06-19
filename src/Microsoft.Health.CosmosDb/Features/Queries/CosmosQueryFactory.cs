@@ -37,9 +37,10 @@ namespace Microsoft.Health.CosmosDb.Features.Queries
             EnsureArg.IsNotNull(documentClient, nameof(documentClient));
             EnsureArg.IsNotNull(context, nameof(context));
 
-            var documentQuery = documentClient
+            FeedIterator<T> documentQuery = documentClient
                 .GetItemQueryIterator<T>(
                     context.SqlQuerySpec,
+                    continuationToken: context.ContinuationToken,
                     requestOptions: context.FeedOptions);
 
             return new CosmosQuery<T>(
