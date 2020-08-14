@@ -21,6 +21,7 @@ using Microsoft.Health.Fhir.Core.Features.Operations.Export.Models;
 using Microsoft.Health.Fhir.Core.Features.Persistence;
 using Microsoft.Health.Fhir.Core.Features.Search;
 using Microsoft.Health.Fhir.Core.Models;
+using Newtonsoft.Json;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Health.Fhir.Core.Features.Operations.Export
@@ -126,7 +127,7 @@ namespace Microsoft.Health.Fhir.Core.Features.Operations.Export
 
                 await RunExportSearch(exportJobConfiguration, progress, queryParametersList, cancellationToken);
 
-                await CompleteJobAsync(OperationStatus.Completed, cancellationToken);
+                await CompleteJobAsync(OperationStatus.Completed, cancellationToken, exportJobConfiguration);
 
                 _logger.LogTrace("Successfully completed the job.");
             }
@@ -161,10 +162,24 @@ namespace Microsoft.Health.Fhir.Core.Features.Operations.Export
             }
         }
 
-        private async Task CompleteJobAsync(OperationStatus completionStatus, CancellationToken cancellationToken)
+        private async Task CompleteJobAsync(OperationStatus completionStatus, CancellationToken cancellationToken, ExportJobConfiguration exportJobConfiguration = null)
         {
             _exportJobRecord.Status = completionStatus;
             _exportJobRecord.EndTime = Clock.UtcNow;
+
+            if (completionStatus == OperationStatus.Completed)
+            {
+                // File does not exist. Create it.
+                string fileName = "metadata.json";
+                Uri fileUri = await _exportDestinationClient.CreateFileAsync(fileName, cancellationToken);
+
+                // Serialize into Json and write to the file.
+                byte[] bytesToWrite = System.Text.Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(_exportJobRecord));
+
+                await _exportDestinationClient.WriteFilePartAsync(fileUri, "metadata", bytesToWrite, cancellationToken);
+
+                await _exportDestinationClient.CommitAsync(exportJobConfiguration, cancellationToken);
+            }
 
             await UpdateJobRecordAsync(cancellationToken);
         }
