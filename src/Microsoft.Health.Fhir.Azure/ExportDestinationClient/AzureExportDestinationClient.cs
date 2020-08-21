@@ -32,19 +32,23 @@ namespace Microsoft.Health.Fhir.Azure.ExportDestinationClient
 
         private readonly IExportClientInitializer<CloudBlobClient> _exportClientInitializer;
         private readonly ExportJobConfiguration _exportJobConfiguration;
+        private readonly IExportMetricLogger _exportMetricsLogger;
         private readonly ILogger _logger;
 
         public AzureExportDestinationClient(
             IExportClientInitializer<CloudBlobClient> exportClientInitializer,
             IOptions<ExportJobConfiguration> exportJobConfiguration,
+            IExportMetricLogger exportMetricsLogger,
             ILogger<AzureExportDestinationClient> logger)
         {
             EnsureArg.IsNotNull(exportClientInitializer, nameof(exportClientInitializer));
             EnsureArg.IsNotNull(exportJobConfiguration?.Value, nameof(exportJobConfiguration));
+            EnsureArg.IsNotNull(exportMetricsLogger, nameof(exportMetricsLogger));
             EnsureArg.IsNotNull(logger, nameof(logger));
 
             _exportClientInitializer = exportClientInitializer;
             _exportJobConfiguration = exportJobConfiguration.Value;
+            _exportMetricsLogger = exportMetricsLogger;
             _logger = logger;
         }
 
@@ -203,6 +207,8 @@ namespace Microsoft.Health.Fhir.Azure.ExportDestinationClient
                 Stream stream = mapping.Value;
                 stream.Position = 0;
 
+                _exportMetricsLogger.SendingBytes(stream.Length);
+
                 CloudBlockBlobWrapper blobWrapper = _uriToBlobMapping[mapping.Key.Item1];
                 var blockId = Convert.ToBase64String(Encoding.ASCII.GetBytes(mapping.Key.Item2));
 
@@ -227,6 +233,8 @@ namespace Microsoft.Health.Fhir.Azure.ExportDestinationClient
             // Commit all the blobs that were uploaded.
             Task[] commitTasks = wrappersToCommit.Select(wrapper => wrapper.CommitBlockListAsync(cancellationToken)).ToArray();
             await Task.WhenAll(commitTasks);
+
+            _exportMetricsLogger.CommitedBytes();
         }
 
         public async Task OpenFileAsync(Uri fileUri, CancellationToken cancellationToken)
