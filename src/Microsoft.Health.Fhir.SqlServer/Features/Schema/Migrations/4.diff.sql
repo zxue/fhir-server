@@ -2,6 +2,10 @@
     Search Parameter Status Information
 **************************************************************/
 
+TRUNCATE TABLE dbo.SearchParam
+
+GO
+
 ALTER TABLE dbo.SearchParam
 ADD
     Status varchar(10) NOT NULL,
