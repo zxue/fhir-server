@@ -37,6 +37,8 @@ namespace Microsoft.Health.Fhir.Api.Features.Routing
         public const string ValidateResourceType = ResourceType + "/" + Validate;
         public const string ValidateResourceTypeById = ResourceTypeById + "/" + Validate;
 
+        public const string Convert = "$x-convert";
+
         public const string Reindex = "$reindex";
         public const string ReindexSingleResource = ResourceTypeById + "/" + Reindex;
         public const string ReindexJobLocation = OperationsConstants.Operations + "/" + OperationsConstants.Reindex + "/" + IdRouteSegment;

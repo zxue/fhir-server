@@ -3,14 +3,10 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Health.Fhir.Core.Configs
+namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models
 {
-    public class OperationsConfiguration
+    public enum ConvertOperationType
     {
-        public ExportJobConfiguration Export { get; set; } = new ExportJobConfiguration();
-
-        public ReindexJobConfiguration Reindex { get; set; } = new ReindexJobConfiguration();
-
-        public ConvertConfiguration Convert { get; set; } = new ConvertConfiguration();
+        Hl7v2ToFhir,
     }
 }

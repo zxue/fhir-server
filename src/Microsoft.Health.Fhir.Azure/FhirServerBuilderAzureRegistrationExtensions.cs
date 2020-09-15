@@ -61,5 +61,33 @@ namespace Microsoft.Health.Fhir.Azure
 
             return fhirServerBuilder;
         }
+
+        public static IFhirServerBuilder AddAzureConfigClientInitializer(this IFhirServerBuilder fhirServerBuilder, IConfiguration configuration)
+        {
+            EnsureArg.IsNotNull(fhirServerBuilder, nameof(fhirServerBuilder));
+            EnsureArg.IsNotNull(configuration, nameof(configuration));
+
+            var exportJobConfiguration = new ExportJobConfiguration();
+            configuration.GetSection(ExportConfigurationName).Bind(exportJobConfiguration);
+
+            if (!string.IsNullOrWhiteSpace(exportJobConfiguration.StorageAccountUri))
+            {
+                fhirServerBuilder.Services.Add<AzureAccessTokenClientInitializer>()
+                    .Transient()
+                    .AsService<IExportClientInitializer<CloudBlobClient>>();
+
+                fhirServerBuilder.Services.Add<AzureAccessTokenProvider>()
+                    .Transient()
+                    .AsService<IAccessTokenProvider>();
+            }
+            else
+            {
+                fhirServerBuilder.Services.Add<AzureConnectionStringClientInitializer>()
+                    .Transient()
+                    .AsService<IExportClientInitializer<CloudBlobClient>>();
+            }
+
+            return fhirServerBuilder;
+        }
     }
 }

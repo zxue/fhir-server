@@ -3,14 +3,12 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Health.Fhir.Core.Configs
+using System.Threading.Tasks;
+
+namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore
 {
-    public class OperationsConfiguration
+    public interface IContainerRegistryArtifactProvider
     {
-        public ExportJobConfiguration Export { get; set; } = new ExportJobConfiguration();
-
-        public ReindexJobConfiguration Reindex { get; set; } = new ReindexJobConfiguration();
-
-        public ConvertConfiguration Convert { get; set; } = new ConvertConfiguration();
+        public Task PullArtifactToDirectory(string artifactName, string digestKey, string targetDirectory);
     }
 }

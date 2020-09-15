@@ -3,14 +3,20 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Health.Fhir.Core.Configs
+using EnsureThat;
+using Microsoft.Health.Fhir.Core.Models;
+
+namespace Microsoft.Health.Fhir.Core.Messages.Convert
 {
-    public class OperationsConfiguration
+    public class ConvertResponse
     {
-        public ExportJobConfiguration Export { get; set; } = new ExportJobConfiguration();
+        public ConvertResponse(ResourceElement resource)
+        {
+            EnsureArg.IsNotNull(resource);
 
-        public ReindexJobConfiguration Reindex { get; set; } = new ReindexJobConfiguration();
+            Resource = resource;
+        }
 
-        public ConvertConfiguration Convert { get; set; } = new ConvertConfiguration();
+        public ResourceElement Resource { get; }
     }
 }
