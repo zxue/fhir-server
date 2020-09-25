@@ -14,6 +14,7 @@ namespace Microsoft.Health.Fhir.Api.Features.Context
     public class FhirRequestContextMiddleware
     {
         private const string RequestIdHeaderName = "X-Request-Id";
+        private const string CorrelationIdHeaderName = "X-Correlation-Id";
 
         private readonly RequestDelegate _next;
 
@@ -40,6 +41,8 @@ namespace Microsoft.Health.Fhir.Api.Features.Context
                 request.Path,
                 request.QueryString);
 
+            string previousRequestId = context.Request.Headers[RequestIdHeaderName];
+
             string correlationId = correlationIdProvider.Invoke();
 
             var fhirRequestContext = new FhirRequestContext(
@@ -51,6 +54,12 @@ namespace Microsoft.Health.Fhir.Api.Features.Context
                 responseHeaders: context.Response.Headers);
 
             context.Response.Headers[RequestIdHeaderName] = correlationId;
+
+            // Moves request-id to correlation-id (https://www.hl7.org/fhir/http.html#custom)
+            if (!string.IsNullOrEmpty(previousRequestId))
+            {
+                context.Response.Headers[CorrelationIdHeaderName] = previousRequestId;
+            }
 
             fhirRequestContextAccessor.FhirRequestContext = fhirRequestContext;
 
