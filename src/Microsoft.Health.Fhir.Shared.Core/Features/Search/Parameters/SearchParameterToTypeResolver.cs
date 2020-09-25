@@ -221,7 +221,7 @@ namespace Microsoft.Health.Fhir.Core.Features.Search.Parameters
                     PropertyMapping prop = mapping.PropertyMappings.FirstOrDefault(x => x.Name == item.Item1);
                     if (prop != null)
                     {
-                        if (prop.GetElementType() == typeof(Element))
+                        if (prop.GetElementType() == typeof(Element) || prop.GetElementType() == typeof(DataType))
                         {
                             string path = pathBuilder.ToString();
                             foreach (Type fhirType in prop.FhirType)
@@ -300,7 +300,7 @@ namespace Microsoft.Health.Fhir.Core.Features.Search.Parameters
 
         private static ClassMapping GetMapping(Type type)
         {
-            ClassMapping returnValue = ModelInspector.FindClassMappingByType(type);
+            ClassMapping returnValue = ModelInspector.FindClassMapping(type);
 
             if (returnValue == null)
             {
