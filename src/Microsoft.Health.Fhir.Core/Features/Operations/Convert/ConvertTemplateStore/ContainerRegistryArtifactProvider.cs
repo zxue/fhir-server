@@ -7,9 +7,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using AngleSharp;
+using EnsureThat;
 using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Options;
 using Microsoft.Health.Fhir.Core.Configs;
@@ -19,20 +19,23 @@ namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplate
     public class ContainerRegistryArtifactProvider : IContainerRegistryArtifactProvider
     {
         private ConvertConfiguration _convertConfiguration;
+        private IContainerRegistryTokenProvider _tokenProvider;
 
-        public ContainerRegistryArtifactProvider(IOptions<ConvertConfiguration> convertConfiguration)
+        public ContainerRegistryArtifactProvider(IOptions<ConvertConfiguration> convertConfiguration, IContainerRegistryTokenProvider tokenProvider)
         {
             _convertConfiguration = convertConfiguration.Value;
+            _tokenProvider = tokenProvider;
         }
 
         public async Task PullArtifactToDirectory(string artifactName, string digest, string targetDirectory)
         {
+            EnsureArg.IsNotNullOrEmpty(_convertConfiguration.ContainerRegistryUrl);
+
             using (var httpClient = new HttpClient())
             {
                 var requestUrl = new Url($"https://{_convertConfiguration.ContainerRegistryUrl}/v2/{artifactName}/blobs/{digest}");
-                var tokenBytes = Encoding.UTF8.GetBytes($"{_convertConfiguration.ContainerRegistryUserName}:{_convertConfiguration.ContainerRegistryPassword}");
-                string basicToken = System.Convert.ToBase64String(tokenBytes);
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicToken);
+                var accessToken = await _tokenProvider.GetContainerRegistryAccessToken(_convertConfiguration);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(accessToken.Type, accessToken.Token);
 
                 HttpResponseMessage response = await httpClient.GetAsync(requestUrl);
                 response.EnsureSuccessStatusCode();

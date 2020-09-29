@@ -6,7 +6,6 @@
 using EnsureThat;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Health.Extensions.DependencyInjection;
-using Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore;
 using Microsoft.Health.Fhir.Core.Features.Operations.Export;
 using Microsoft.Health.Fhir.Core.Features.Operations.Reindex;
 
@@ -28,17 +27,6 @@ namespace Microsoft.Health.Fhir.Api.Modules
             services.Add<ExportJobTask>()
                 .Transient()
                 .AsSelf();
-
-            services.Add<ContainerRegistryArtifactProvider>()
-                .Transient()
-                .AsSelf();
-
-            services.Add<IContainerRegistryArtifactProvider>(sp => sp.GetRequiredService<ContainerRegistryArtifactProvider>())
-                .Transient()
-                .AsSelf()
-                .AsFactory();
-
-            services.AddSingleton<ITemplateStoreClient, TemplateStoreClient>();
 
             services.Add<IExportJobTask>(sp => sp.GetRequiredService<ExportJobTask>())
                 .Transient()

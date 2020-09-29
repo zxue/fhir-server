@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models;

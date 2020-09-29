@@ -10,6 +10,7 @@ using Microsoft.Health.Extensions.DependencyInjection;
 using Microsoft.Health.Fhir.Azure.ExportDestinationClient;
 using Microsoft.Health.Fhir.Core.Configs;
 using Microsoft.Health.Fhir.Core.Features.Operations;
+using Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore;
 using Microsoft.Health.Fhir.Core.Features.Operations.Export.ExportDestinationClient;
 using Microsoft.Health.Fhir.Core.Registration;
 
@@ -58,6 +59,30 @@ namespace Microsoft.Health.Fhir.Azure
                     .Transient()
                     .AsService<IExportClientInitializer<CloudBlobClient>>();
             }
+
+            return fhirServerBuilder;
+        }
+
+        public static IFhirServerBuilder AddAzureContainerRegistryInitializer(this IFhirServerBuilder fhirServerBuilder, IConfiguration configuration)
+        {
+            EnsureArg.IsNotNull(fhirServerBuilder, nameof(fhirServerBuilder));
+            EnsureArg.IsNotNull(configuration, nameof(configuration));
+
+            fhirServerBuilder.Services.Add<ContainerRegistryTokenProvider>()
+                .Singleton()
+                .AsService<IContainerRegistryTokenProvider>();
+
+            fhirServerBuilder.Services.Add<ContainerRegistryArtifactProvider>()
+                .Singleton()
+                .AsService<IContainerRegistryArtifactProvider>();
+
+            fhirServerBuilder.Services.Add<TemplateStoreClient>()
+                .Singleton()
+                .AsService<ITemplateStoreClient>();
+
+            fhirServerBuilder.Services.Add<ConvertEngineManager>()
+                .Singleton()
+                .AsService<IConvertEngineManager>();
 
             return fhirServerBuilder;
         }

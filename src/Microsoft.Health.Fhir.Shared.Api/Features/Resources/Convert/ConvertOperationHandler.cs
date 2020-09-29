@@ -12,7 +12,6 @@ using EnsureThat;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using MediatR;
-using Microsoft.Health.Fhir.Converter.Hl7v2;
 using Microsoft.Health.Fhir.Core.Exceptions;
 using Microsoft.Health.Fhir.Core.Extensions;
 using Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore;
@@ -28,10 +27,12 @@ namespace Microsoft.Health.Fhir.Api.Features.Resources.Convert
         private readonly IFhirAuthorizationService _authorizationService;
         private readonly ITemplateStoreClient _templateStoreClient;
         private readonly FhirJsonParser _parser;
+        private readonly IConvertEngineManager _convertEngineManager;
 
         public ConvertOperationHandler(
             IFhirAuthorizationService authorizationService,
             ITemplateStoreClient templateStoreClient,
+            IConvertEngineManager convertEngineManager,
             FhirJsonParser parser)
         {
             EnsureArg.IsNotNull(authorizationService, nameof(authorizationService));
@@ -39,11 +40,12 @@ namespace Microsoft.Health.Fhir.Api.Features.Resources.Convert
             _authorizationService = authorizationService;
             _templateStoreClient = templateStoreClient;
             _parser = parser;
+            _convertEngineManager = convertEngineManager;
         }
 
         public async Task<ConvertResponse> Handle(ConvertRequest request, CancellationToken cancellationToken)
         {
-            if (await _authorizationService.CheckAccess(DataActions.Convert) != DataActions.Convert)
+            if (await _authorizationService.CheckAccess(DataActions.Read) != DataActions.Read)
             {
                 throw new UnauthorizedFhirActionException();
             }
@@ -52,7 +54,8 @@ namespace Microsoft.Health.Fhir.Api.Features.Resources.Convert
             ConvertOption options = ExtractConvertOptionFromRequestParameters(parameters);
             string templateDirectory = Path.Combine(await _templateStoreClient.GetTemplateSet(options), "templates", "Hl7v2");
             string rawInput = DecodeBase64Input(options.InputData);
-            var hl7v2Processor = new Hl7v2Processor(templateDirectory);
+
+            var hl7v2Processor = _convertEngineManager.GetHl7V2Processor(templateDirectory);
             string bundleResult = hl7v2Processor.Convert(rawInput, options.EntryPointTemplate);
 
             var bundle = _parser.Parse<Hl7.Fhir.Model.Bundle>(bundleResult);

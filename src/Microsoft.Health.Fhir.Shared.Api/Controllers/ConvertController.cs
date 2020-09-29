@@ -40,6 +40,7 @@ namespace Microsoft.Health.Fhir.Api.Controllers
         public async Task<IActionResult> Convert([FromBody] Resource resource)
         {
             var response = await _mediator.Send(new ConvertRequest(resource.ToResourceElement()));
+            var content = new ContentResult();
             return new FhirResult(response.Resource);
         }
     }
