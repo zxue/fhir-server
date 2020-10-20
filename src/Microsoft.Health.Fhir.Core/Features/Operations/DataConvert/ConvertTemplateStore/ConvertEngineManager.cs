@@ -3,21 +3,17 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-using EnsureThat;
-using MediatR;
-using Microsoft.Health.Fhir.Core.Models;
+using Microsoft.Health.Fhir.Converter.Hl7v2;
 
-namespace Microsoft.Health.Fhir.Core.Messages.Convert
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore
 {
-    public class ConvertRequest : IRequest<ConvertResponse>
+    public class ConvertEngineManager : IConvertEngineManager
     {
-        public ConvertRequest(ResourceElement resource)
+        private readonly Hl7v2Processor _processor = new Hl7v2Processor();
+
+        public Hl7v2Processor GetHl7V2Processor()
         {
-            EnsureArg.IsNotNull(resource);
-
-            Resource = resource;
+            return _processor;
         }
-
-        public ResourceElement Resource { get; }
     }
 }

@@ -5,12 +5,12 @@
 
 using System.Threading.Tasks;
 using Microsoft.Health.Fhir.Core.Configs;
-using Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models;
+using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.Models;
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore
 {
     public interface IContainerRegistryTokenProvider
     {
-        public Task<AccessToken> GetContainerRegistryAccessToken(ConvertConfiguration convertConfiguration);
+        public Task<AccessToken> GetContainerRegistryAccessToken(DataConvertConfiguration convertConfiguration);
     }
 }

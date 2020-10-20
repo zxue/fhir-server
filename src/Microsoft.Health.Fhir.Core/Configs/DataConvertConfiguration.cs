@@ -5,7 +5,7 @@
 
 namespace Microsoft.Health.Fhir.Core.Configs
 {
-    public class ConvertConfiguration
+    public class DataConvertConfiguration
     {
         /// <summary>
         /// Determines whether convert is enabled or not.

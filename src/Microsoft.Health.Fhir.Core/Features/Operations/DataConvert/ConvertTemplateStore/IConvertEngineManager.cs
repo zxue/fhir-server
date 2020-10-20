@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-using System.Threading.Tasks;
+using Microsoft.Health.Fhir.Converter.Hl7v2;
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore
 {
-    public interface IContainerRegistryArtifactProvider
+    public interface IConvertEngineManager
     {
-        public Task PullArtifactToDirectory(string artifactName, string digestKey, string targetDirectory);
+        public Hl7v2Processor GetHl7V2Processor();
     }
 }

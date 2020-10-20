@@ -3,13 +3,19 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-using System.Threading.Tasks;
-using Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models;
+using EnsureThat;
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore
+namespace Microsoft.Health.Fhir.Core.Messages.DataConvert
 {
-    public interface ITemplateStoreClient
+    public class DataConvertResponse
     {
-        public Task<string> GetTemplateSet(ConvertOption options);
+        public DataConvertResponse(string resource)
+        {
+            EnsureArg.IsNotNull(resource);
+
+            Resource = resource;
+        }
+
+        public string Resource { get; }
     }
 }

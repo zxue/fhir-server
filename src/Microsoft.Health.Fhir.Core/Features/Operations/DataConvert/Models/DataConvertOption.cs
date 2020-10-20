@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.Models
 {
-    public class ConvertOption
+    public class DataConvertOption
     {
         public string InputData { get; set; }
 
-        public ConvertOperationType OperationType { get; set; }
+        public DataConvertInputType DataType { get; set; }
 
         public string TemplateSetLocation { get; set; }
 

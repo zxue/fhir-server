@@ -3,12 +3,10 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.Models
 {
-    public class AccessToken
+    public enum DataConvertInputType
     {
-        public string Type { get; set;  }
-
-        public string Token { get; set; }
+        Hl7v2,
     }
 }

@@ -6,14 +6,14 @@
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Health.Fhir.Core.Configs;
-using Microsoft.Health.Fhir.Core.Features.Operations.Convert.Models;
+using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.Models;
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.Convert.ConvertTemplateStore
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore
 {
     public class ContainerRegistryTokenProvider : IContainerRegistryTokenProvider
     {
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<AccessToken> GetContainerRegistryAccessToken(ConvertConfiguration convertConfiguration)
+        public async Task<AccessToken> GetContainerRegistryAccessToken(DataConvertConfiguration convertConfiguration)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var tokenBytes = Encoding.UTF8.GetBytes($"{convertConfiguration.ContainerRegistryUserName}:{convertConfiguration.ContainerRegistryPassword}");

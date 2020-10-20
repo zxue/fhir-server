@@ -22,7 +22,7 @@ namespace Microsoft.Health.Fhir.Core.Features.Security
         Export = 1 << 4,
         ResourceValidate = 1 << 5,
         Reindex = 1 << 6,
-        Convert = 1 << 7,
+        DataConvert = 1 << 7,
 
         [EnumMember(Value = "*")]
         All = (ResourceValidate << 1) - 1,
