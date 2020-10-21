@@ -96,7 +96,7 @@ namespace Microsoft.Health.Fhir.Api.Features.Formatters
                 if (delayedException != null)
                 {
                     // Avoid using the exception's message, since the exception thrown in the HL7 FHIR core library has an incorrect message.
-                    var errorMessage = Api.Resources.ParsingError;
+                    var errorMessage = delayedException.Message;
 
                     // Add model state information to return to the client
                     context.ModelState.TryAddModelError(string.Empty, errorMessage);

@@ -19,14 +19,14 @@ using Microsoft.Health.Fhir.Core.Messages.DataConvert;
 
 namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert
 {
-    public class ConvertOperationHandler : IRequestHandler<DataConvertRequest, DataConvertResponse>
+    public class DataConvertOperationHandler : IRequestHandler<DataConvertRequest, DataConvertResponse>
     {
         private readonly IFhirAuthorizationService _authorizationService;
         private readonly IContainerRegistryTokenProvider _containerRegistryTokenProvider;
         private readonly IConvertEngineManager _convertEngineManager;
         private readonly DataConvertConfiguration _dataConvertConfiguration;
 
-        public ConvertOperationHandler(
+        public DataConvertOperationHandler(
             IFhirAuthorizationService authorizationService,
             IContainerRegistryTokenProvider containerRegistryTokenProvider,
             IOptions<DataConvertConfiguration> dataConvertConfiguration,
