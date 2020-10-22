@@ -19,5 +19,7 @@ namespace Microsoft.Health.Fhir.Core.Features.Operations.Export.ExportDestinatio
         /// <returns>Access token.</returns>
         /// <exception cref="AccessTokenProviderException">Thrown when unable to get access token.</exception>
         Task<string> GetAccessTokenForResourceAsync(Uri resourceUri, CancellationToken cancellationToken);
+
+        Task<string> ExchangeContainerRegistryAccessToken(Uri registryUri, string aadAccessToken);
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.Health.Extensions.DependencyInjection;
 using Microsoft.Health.Fhir.Azure.ExportDestinationClient;
 using Microsoft.Health.Fhir.Core.Configs;
 using Microsoft.Health.Fhir.Core.Features.Operations;
-using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore;
+using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.TemplateStore;
 using Microsoft.Health.Fhir.Core.Features.Operations.Export.ExportDestinationClient;
 using Microsoft.Health.Fhir.Core.Registration;
 
@@ -43,15 +43,15 @@ namespace Microsoft.Health.Fhir.Azure
             var exportJobConfiguration = new ExportJobConfiguration();
             configuration.GetSection(ExportConfigurationName).Bind(exportJobConfiguration);
 
+            fhirServerBuilder.Services.Add<AzureAccessTokenProvider>()
+                .Transient()
+                .AsService<IAccessTokenProvider>();
+
             if (!string.IsNullOrWhiteSpace(exportJobConfiguration.StorageAccountUri))
             {
                 fhirServerBuilder.Services.Add<AzureAccessTokenClientInitializer>()
                     .Transient()
                     .AsService<IExportClientInitializer<CloudBlobClient>>();
-
-                fhirServerBuilder.Services.Add<AzureAccessTokenProvider>()
-                    .Transient()
-                    .AsService<IAccessTokenProvider>();
             }
             else
             {
@@ -72,9 +72,9 @@ namespace Microsoft.Health.Fhir.Azure
                 .Singleton()
                 .AsService<IContainerRegistryTokenProvider>();
 
-            fhirServerBuilder.Services.Add<ConvertEngineManager>()
+            fhirServerBuilder.Services.Add<DataConvertEngineManager>()
                 .Singleton()
-                .AsService<IConvertEngineManager>();
+                .AsService<IDataConvertEngineManager>();
 
             return fhirServerBuilder;
         }

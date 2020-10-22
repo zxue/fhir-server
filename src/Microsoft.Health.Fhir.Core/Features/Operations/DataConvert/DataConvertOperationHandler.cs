@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Health.Fhir.Converter.TemplateManagement;
 using Microsoft.Health.Fhir.Core.Configs;
 using Microsoft.Health.Fhir.Core.Exceptions;
-using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore;
+using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.TemplateStore;
 using Microsoft.Health.Fhir.Core.Features.Security;
 using Microsoft.Health.Fhir.Core.Features.Security.Authorization;
 using Microsoft.Health.Fhir.Core.Messages.DataConvert;
@@ -23,14 +23,14 @@ namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert
     {
         private readonly IFhirAuthorizationService _authorizationService;
         private readonly IContainerRegistryTokenProvider _containerRegistryTokenProvider;
-        private readonly IConvertEngineManager _convertEngineManager;
+        private readonly IDataConvertEngineManager _convertEngineManager;
         private readonly DataConvertConfiguration _dataConvertConfiguration;
 
         public DataConvertOperationHandler(
             IFhirAuthorizationService authorizationService,
             IContainerRegistryTokenProvider containerRegistryTokenProvider,
             IOptions<DataConvertConfiguration> dataConvertConfiguration,
-            IConvertEngineManager convertEngineManager)
+            IDataConvertEngineManager convertEngineManager)
         {
             EnsureArg.IsNotNull(authorizationService, nameof(authorizationService));
             EnsureArg.IsNotNull(containerRegistryTokenProvider, nameof(containerRegistryTokenProvider));
@@ -49,7 +49,7 @@ namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert
                 throw new UnauthorizedFhirActionException();
             }
 
-            var containerRegistryAccessToken = await _containerRegistryTokenProvider.GetContainerRegistryAccessToken(_dataConvertConfiguration);
+            var containerRegistryAccessToken = await _containerRegistryTokenProvider.GetContainerRegistryAccessToken(request.TemplateSetImageInfo.Registry, _dataConvertConfiguration, CancellationToken.None);
             var accessToken = $"{containerRegistryAccessToken.Type} {containerRegistryAccessToken.Token}";
             var templates = ServerEngine.Engine.OCIPull(accessToken, request.TemplateSetImageInfo);
 

@@ -56,6 +56,12 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddNewtonsoftJson()
             .AddRazorRuntimeCompilation();
 
+            services.AddMemoryCache(options =>
+            {
+                options.ExpirationScanFrequency = TimeSpan.FromSeconds(5 * 60);
+                options.SizeLimit = 1024;
+            });
+
             var fhirServerConfiguration = new FhirServerConfiguration();
 
             configurationRoot?.GetSection(FhirServerConfigurationSectionName).Bind(fhirServerConfiguration);
@@ -69,7 +75,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Operations));
             services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Operations.Export));
             services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Operations.Reindex));
-            services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Operations.Convert));
+            services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Operations.DataConvert));
             services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Audit));
             services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Bundle));
             services.AddSingleton(Options.Options.Create(fhirServerConfiguration.Throttling));
@@ -78,7 +84,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.RegisterAssemblyModules(Assembly.GetExecutingAssembly(), fhirServerConfiguration);
 
             services.AddFhirServerBase(fhirServerConfiguration);
-
             services.AddHttpClient();
 
             var multipleRegisteredServices = services
@@ -144,7 +149,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     // which will be used in other middlewares.
                     app.UseFhirRequestContext();
 
-                    if (env.IsDevelopment())
+                    if (!env.IsDevelopment())
                     {
                         app.UseDeveloperExceptionPage();
                     }

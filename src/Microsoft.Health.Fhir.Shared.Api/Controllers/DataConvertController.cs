@@ -4,6 +4,7 @@
 // -------------------------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EnsureThat;
 using Hl7.Fhir.Model;
@@ -30,20 +31,21 @@ namespace Microsoft.Health.Fhir.Api.Controllers
     [ServiceFilter(typeof(ValidateContentTypeFilterAttribute))]
     [ValidateResourceTypeFilter]
     [ValidateModelState]
-    public class ConvertController : Controller
+    public class DataConvertController : Controller
     {
         private readonly IMediator _mediator;
         private readonly DataConvertConfiguration _convertConfig;
         private const char ImageDigestDelimiter = '@';
         private const char ImageTagDelimiter = ':';
+        private const char ImageRegistryDelimiter = '/';
 
-        public ConvertController(IMediator mediator, IOptions<OperationsConfiguration> operationsConfig)
+        public DataConvertController(IMediator mediator, IOptions<OperationsConfiguration> operationsConfig)
         {
             EnsureArg.IsNotNull(mediator, nameof(mediator));
             EnsureArg.IsNotNull(operationsConfig, nameof(operationsConfig));
 
             _mediator = mediator;
-            _convertConfig = operationsConfig.Value.Convert;
+            _convertConfig = operationsConfig.Value.DataConvert;
         }
 
         [HttpPost]
@@ -53,7 +55,7 @@ namespace Microsoft.Health.Fhir.Api.Controllers
         {
             CheckIfDataConvertIsEnabled();
 
-            DataConvertResponse response = await _mediator.Send(GenerateConvertRequestFromRequestParameters(resource.ToResourceElement()));
+            DataConvertResponse response = await _mediator.Send(ParseConvertRequest(resource.ToResourceElement()));
 
             return new ContentResult
             {
@@ -62,7 +64,7 @@ namespace Microsoft.Health.Fhir.Api.Controllers
             };
         }
 
-        private DataConvertRequest GenerateConvertRequestFromRequestParameters(ResourceElement resourceElement)
+        private static DataConvertRequest ParseConvertRequest(ResourceElement resourceElement)
         {
             var parameters = resourceElement.ToPoco<Parameters>();
 
@@ -94,8 +96,17 @@ namespace Microsoft.Health.Fhir.Api.Controllers
             return new DataConvertRequest(inputData, dataType, imageInfo, entryPointTemplate);
         }
 
-        private ImageInfo ExtractImageInfo(string imageReference)
+        private static ImageInfo ExtractImageInfo(string imageReference)
         {
+            var registryDelimiterPosition = imageReference.IndexOf(ImageRegistryDelimiter, StringComparison.InvariantCultureIgnoreCase);
+            if (registryDelimiterPosition == -1)
+            {
+                throw new RequestNotValidException("Template image format is invalid: registry server is missing.");
+            }
+
+            var registryServer = imageReference.Substring(0, registryDelimiterPosition);
+            imageReference = imageReference.Substring(registryDelimiterPosition + 1);
+
             if (imageReference.Contains(ImageDigestDelimiter, StringComparison.OrdinalIgnoreCase))
             {
                 Tuple<string, string> imageMeta = SplitApart(imageReference, ImageDigestDelimiter);
@@ -104,7 +115,7 @@ namespace Microsoft.Health.Fhir.Api.Controllers
                     throw new RequestNotValidException("Template image format is invalid.");
                 }
 
-                return new ImageInfo(_convertConfig.ContainerRegistryUrl, imageMeta.Item1, tag: null, digest: imageMeta.Item2);
+                return new ImageInfo(registryServer, imageMeta.Item1, tag: null, digest: imageMeta.Item2);
             }
             else if (imageReference.Contains(ImageTagDelimiter, StringComparison.OrdinalIgnoreCase))
             {
@@ -114,15 +125,15 @@ namespace Microsoft.Health.Fhir.Api.Controllers
                     throw new RequestNotValidException("Template image format is invalid.");
                 }
 
-                return new ImageInfo(_convertConfig.ContainerRegistryUrl, imageMeta.Item1, tag: imageMeta.Item2);
+                return new ImageInfo(registryServer, imageMeta.Item1, tag: imageMeta.Item2);
             }
 
-            return new ImageInfo(_convertConfig.ContainerRegistryUrl, imageReference);
+            return new ImageInfo(registryServer, imageReference);
         }
 
         private static Tuple<string, string> SplitApart(string input, char dilimeter)
         {
-            var index = input.IndexOf(dilimeter, StringComparison.OrdinalIgnoreCase);
+            var index = input.IndexOf(dilimeter, StringComparison.InvariantCultureIgnoreCase);
             return new Tuple<string, string>(input.Substring(0, index), input.Substring(index + 1));
         }
 

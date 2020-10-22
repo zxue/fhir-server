@@ -5,10 +5,15 @@
 
 using Microsoft.Health.Fhir.Converter.Hl7v2;
 
-namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.ConvertTemplateStore
+namespace Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.TemplateStore
 {
-    public interface IConvertEngineManager
+    public class DataConvertEngineManager : IDataConvertEngineManager
     {
-        public Hl7v2Processor GetHl7V2Processor();
+        private readonly Hl7v2Processor _processor = new Hl7v2Processor();
+
+        public Hl7v2Processor GetHl7V2Processor()
+        {
+            return _processor;
+        }
     }
 }

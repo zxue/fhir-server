@@ -3,6 +3,10 @@
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using Microsoft.Health.Fhir.Core.Features.Operations.DataConvert.TemplateStore;
+
 namespace Microsoft.Health.Fhir.Core.Configs
 {
     public class DataConvertConfiguration
@@ -12,12 +16,10 @@ namespace Microsoft.Health.Fhir.Core.Configs
         /// </summary>
         public bool Enabled { get; set; }
 
-#pragma warning disable CA1056 // Uri properties should not be strings
-        public string ContainerRegistryUrl { get; set; } = string.Empty;
-#pragma warning restore CA1056 // Uri properties should not be strings
+        public List<TemplateRegistry> TemplateRegistries { get; } = new List<TemplateRegistry>();
 
-        public string ContainerRegistryUserName { get; set; } = string.Empty;
+        public TimeSpan RegistryTokenExpiration { get; set; } = TimeSpan.FromMinutes(30);
 
-        public string ContainerRegistryPassword { get; set; } = string.Empty;
+        public TimeSpan ProcessTimeoutThreshold { get; set; } = TimeSpan.FromSeconds(30);
     }
 }
